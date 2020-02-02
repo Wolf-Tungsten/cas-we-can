@@ -1,0 +1,9 @@
+{
+  "dependencies": {
+    "js-yaml": "^3.13.1",
+    "koa": "^2.11.0",
+    "koa-body": "^4.1.1",
+    "koa-router": "^8.0.6",
+    "oracledb": "^4.2.0"
+  }
+}

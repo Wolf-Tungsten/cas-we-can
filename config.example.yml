@@ -1,0 +1,25 @@
+# cas-we-can 配置文件示例
+
+# 配置微信服务器相关信息
+wechat: 
+  appId: '微信公众号AppID'
+  appSecret: '微信公众号AppSecret'
+
+# 配置 CAS 服务地址
+cas: 
+  loginUrl: 'https://'
+  logoutUrl: 'https://'
+  serviceValidateUrl: 'https://'
+
+# 下辖服务访问凭据
+accessKey:
+  - appId: 'seicwxbz'
+    appSecret: 'asdfgh'
+    urlPrefixWhiteList: 
+      - 'https://seicwxbz.seu.edu.cn/api'
+
+  - appId: 'seicwx-checkin'
+    appSecret: 'qwerty'
+    urlPrefixWhiteList:
+      - 'https://seicwxbz.seu.edu.cn/checkin'
+
