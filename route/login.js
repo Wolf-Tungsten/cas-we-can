@@ -1,12 +1,12 @@
-const uuid = require('uuid/v4');
+const uuid = require('uuid/v4')
+const moment = require('moment')
 module.exports = {
     async login(ctx, next) {
         const gotoUrl = decodeURIComponent(ctx.request.query.goto)
-        const [urlPath, urlQuery] = gotoUrl.split['?']
+        const [urlPath, urlQuery] = gotoUrl.split('?')
         // 检查应用是否正确授权
         let accessKey
         Object.keys(ctx.config.urlPrefixWhitelist).forEach(url => {
-            console.log(url)
             if(urlPath.startsWith(url)){
                 accessKey = ctx.config.urlPrefixWhitelist[url]
             }
@@ -20,8 +20,12 @@ module.exports = {
         // 确定应用已正确授权，准备发起微信网页授权流程
         // 首先生成 session
         const session = uuid()
-
-
-        ctx.body = session
+        // 保存 session
+        await ctx.store.saveSession(session, urlPath, urlQuery, moment().toDate())
+        // 拼接微信回调URL
+        let wechatOAuthUrl = 
+        `https://open.weixin.qq.com/connect/oauth2/authorize?appid=${ctx.config.wechat.appId}&redirect_uri=${ctx.config.publicPath}wechat-callback&response_type=code&scope=snsapi_base&state=${session}#wechat_redirect`
+        // 然后我们 wechatCallback 见👋
+        ctx.response.redirect(wechatOAuthUrl)
     }
 }

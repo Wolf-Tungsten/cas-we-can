@@ -30,16 +30,22 @@ async function initTables(conn) {
   
   // 创建 Session 表
   try{
+    await conn.execute(`DROP TABLE cas_we_session`)
     await conn.execute(`
   CREATE TABLE cas_we_session
   (
     session_key VARCHAR2(256) NOT NULL,
     url_path VARCHAR2(4000) NOT NULL,
-    url_query VARCHAR2(4000) NOT NULL,
+    url_query VARCHAR2(4000),
     created_time TIMESTAMP NOT NULL,
+    access_token VARCHAR2(256),
+    access_token_expires_at TIMESTAMP,
+    openid VARCHAR2(256),
     CONSTRAINT cas_we_session_pk PRIMARY KEY ( session_key ) ENABLE 
   )`)
   } catch (e) {}
+
+  // 创建 
   
   // 创建 Ticket 表
   try {
@@ -100,18 +106,36 @@ module.exports = {
     `, { sessionKey: session, urlPath, urlQuery, createdTime })
   },
   /**
+   * updateSession
+   * 在微信网页授权回调中添加网页授权 accessToken 和 OpenID
+   * @param {Connection} conn 
+   * @param {String} session 
+   * @param {String} openId 
+   * @param {String} accessToken 
+   * @param {Date} accessTokenExpiresAt
+   */
+  async updateSession(conn, session, openId, accessToken, accessTokenExpiresAt){
+    // 更新 session 信息
+    await conn.execute(`
+    UPDATE cas_we_session
+    SET access_token = :accessToken, access_token_expires_at =:accessTokenExpiresAt, openid = :openId
+    WHERE session_key = :sessionKey
+    `, {sessionKey: session, accessToken, accessTokenExpiresAt, openId})
+  },
+  /**
    * loadSession
    * 根据 session 获取 saveSession 方法保存的会话信息
    * @param {Connection} conn 
    * @param {String} session 
    * 
-   * 返回格式：{ session, urlPath, urlQuery, createdTime }
+   * 返回格式：{ session, urlPath, urlQuery, createdTime, access_token, openid }
    * 若无法根据 session 找到预先保存的会话信息，直接返回 null
    */
   async loadSession(conn, session) {
     // 通过 session 获取对应信息并删除 session 记录
     let record = await conn.execute(`
-    SELECT session_key, url_path, url_query, created_time
+    SELECT session_key, url_path, url_query, created_time, 
+    access_token, access_token_expires_at, openid
     FROM cas_we_session
     WHERE session_key = :sessionKey
     `, { sessionKey:session })
@@ -120,7 +144,10 @@ module.exports = {
         session: record.rows[0][0],
         urlPath: record.rows[0][1],
         urlQuery: record.rows[0][2],
-        createdTime: record.rows[0][3]
+        createdTime: record.rows[0][3],
+        accessToken: record.rows[0][4],
+        accessTokenExpiresAt: record.rows[0][5],
+        openId: record.rows[0][6],
       }
     } else {
       return null;

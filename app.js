@@ -7,6 +7,7 @@ const router = new koaRouter();
 
 router.get('/access-token', require('./route/accessToken').getAccessToken)
 router.get('/login', require('./route/login').login)
+router.get('/wechat-callback', require('./route/wechatCallback').wechatCallback)
 
 app.use(koaBody())
 app.use(require('./middleware/config')())

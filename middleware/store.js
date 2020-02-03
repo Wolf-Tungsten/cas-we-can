@@ -1,11 +1,11 @@
-const storeAdapter = require('../store-adapter')
+const storeAdapter = require('../adapter/store-adapter')
 
 module.exports = function () {
     return async (ctx, next) => {
         let conn = await storeAdapter.getConnection(ctx.config)
         ctx.store = {};
         ['saveAccessToken', 'loadAccessToken',
-        'saveSession', 'loadSession'
+        'saveSession', 'loadSession', 'updateSession' ,'clearSession'
     ].forEach(fn => {
                 console.log(fn)
                 ctx.store[fn] = async (...args) => {

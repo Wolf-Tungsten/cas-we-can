@@ -4,6 +4,7 @@
     "test": "mocha -t 10000"
   },
   "dependencies": {
+    "axios": "^0.19.2",
     "js-yaml": "^3.13.1",
     "koa": "^2.11.0",
     "koa-body": "^4.1.1",

@@ -9,6 +9,7 @@ module.exports = function () {
             config.urlPrefixWhitelist[u] = k
         })
     })
+    console.log(config)
     return async (ctx, next) => {
         ctx.config = config
         await next()
