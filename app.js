@@ -5,7 +5,13 @@ const yaml = require('js-yaml')
 const fs   = require('fs')
 const logger = require('koa-logger')
 const chalk = require('chalk')
+const program = require('commander')
 global.chalkColored = new chalk.Instance({level: 2})
+
+program
+  .version('1.0.0')
+  .option('-p, --port <port>', '服务监听端口' ,parseInt)
+  .parse(process.argv)
 
 const config = yaml.safeLoad(fs.readFileSync('./config.yml', 'utf8'))
 
@@ -35,4 +41,4 @@ app.use(require('./middleware/errorWrapper')())
 app.use(router.routes())
 app.use(router.allowedMethods())
 
-app.listen(config.port)
+app.listen(program.port)

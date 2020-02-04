@@ -3,15 +3,16 @@
   "version": "1.0.0",
   "author": "Wolf-Tungsten",
   "license": "MIT",
-  "nodeVersion":"12.14.1",
+  "nodeVersion": "12.14.1",
   "scripts": {
-    "dev": "cross-env NODE_ENV=development nodemon --tls-min-v1.0 app.js",
-    "start": "cross-env NODE_ENV=production nodemon --tls-min-v1.0 app.js",
+    "dev": "cross-env NODE_ENV=development nodemon --tls-min-v1.0 app.js --port=3000",
+    "start": "cross-env NODE_ENV=production nodemon --tls-min-v1.0 app.js --port=3000",
     "test": "mocha -t 10000"
   },
   "dependencies": {
     "axios": "^0.19.2",
     "chalk": "^3.0.0",
+    "commander": "^4.1.1",
     "cross-env": "^7.0.0",
     "fast-xml-parser": "^3.16.0",
     "js-yaml": "^3.13.1",

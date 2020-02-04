@@ -1,13 +1,39 @@
-# cas-we-can
-微信网页授权/CAS认证一站式解决方案
+# CAS-We-Can
+微信网页授权/CAS 认证解决方案/公众号 Access Token 中控服务
 
 ## 功能介绍
-用于将微信网页授权和 CAS 认证连接，引导用户先后完成微信网页授权、CAS 认证登录，
-并将用户 OpenId 与 CAS 认证信息关联。
-提供 CAS 系统兼容风格接口，以便于各种「古法」开发的系统“无痛”接入。
-同时为了便于多子系统接入，提供微信公众号 Access Token 管理服务。
+* 用于将微信网页授权和 CAS 认证组合，引导用户先后完成微信网页授权、CAS 认证登录，并将用户 OpenId 与 CAS 认证信息关联
 
-## cas-we 授权登录流程
+* 提供 CAS 兼容风格接口，以便于各种「古法」开发的系统“无痛”接入
+
+* 同时为了便于多子系统接入，提供微信公众号 Access Token 管理服务
+
+* 提供 store-adapter、cas-adapter 以适配目标系统
+
+## 部署
+
+### Step 1.编写 `config.yml` 配置文件
+
+复制项目目录下 `config.example.yml` 为 `config.yml`，并参考其中注释进行配置。
+
+### step 2.编写 Adapter
+
+**adapter/store-adapter.js**
+
+对持久化功能的适配器，参考注释修改。
+
+项目提供一种支持 Oracle 数据库的 store-adapter。
+
+同时，为了便于理解，提供了使用内存暂存数据的 store-mem-adapter。⚠️ 内存暂存数据会导致应用无法正确
+
+修改完成后使用 `npm run test` 确保所有
+
+
+
+
+
+## cas-we-can 授权登录流程
+
 下文均假设 cas-we 服务被部署在 https://example.com/cas-we 路径。
 
 ### Step 1.拼接登录 URL
@@ -20,7 +46,7 @@ https://example.com/cas-we/login?goto=<待授权服务 URL>
 https://example.com/cas-we/login?goto=https%3A%2F%2Ftommy.seu.edu.cn%2FidsCallback%3Fkey1%3Dvalue1%26key2%3Dvalue2
 ```
 支持 URL Query 参数，既有参数会与授权 ticket 参数融合。
-为了保证良好的浏览器兼容性，应首先对URL进行 encodeURIComponent（如果不带参数不encode也行）
+为了保证良好的浏览器兼容性，应首先对URL进行 encodeURIComponent
 
 ### Step 2.引导用户访问登录URL
 引导用户访问登录 URL，系统将完成微信网页授权、CAS 认证登录，然后前往待授权服务URL。
@@ -36,28 +62,50 @@ https://tommy.seu.edu.cn/idsCallback?ticket=ST-xxxxxx-cas&key1=value1&key2=value
 为了保证兼容性，提供两种换取方式，以下分别介绍。
 
 ### 换取古法 CAS 信息
-服务端请求以下接口
+服务端请求以下接口：
 ```
-GET https://example.com/cas-we/serviceValidate?ticket=<st-ticket>&service=<须和登录 URL 中的 goto 参数完全一致>
+GET https://example.com/cas-we/serviceValidate?ticket=<st-ticket>&service=<service>
 ```
 该接口会返回所接入 CAS 系统完全一致的用户信息，方便系统对接。
 
+`service` 校验不包含 Query 参数。
+
 ### 换取 JSON 格式信息
-服务端请求以下接口
+服务端请求以下接口：
 ```
-GET https://example.com/cas-we/serviceValidate?ticket=<st-ticket>&service=<须和登录 URL 中的 goto 参数完全一致>&json=1
+GET https://example.com/cas-we/serviceValidate?ticket=<st-ticket>&service=<service>&json=1
 ```
 
+`service` 校验不包含 Query 参数。
+
 该接口正确返回格式如下：
-```json
+
+| 参数          | 类型    | 解释                                            |
+| ------------- | ------- | ----------------------------------------------- |
+| success       | Boolean | 接口是否调用成功                                |
+| openid        | String  | 用户 OpenID                                     |
+| access_token  | String  | 网页授权 Access Token（不是接口 Access Token）  |
+| expires_in    | Number  | 网页授权有效时间                                |
+| refresh_token | String  | 网页授权 Refresh Token（不是接口 Access Token） |
+| cas_info      | Object  | 由 cas-adapter 转换                             |
+| raw_cas_info  | String  | 原始的 CAS 认证信息                             |
+
+返回示例：
+
+```
 {
     "success":true,
     "openid":"用户 OpenId",
-    "casInfo":{
+    "access_token":"网页授权 Access Token（不是接口 Access Token）",
+    "expires_in":7200,
+    "refresh_token":"网页授权 Refresh Token"
+    "cas_info":{
         "结构化的CAS信息":"由 cas-adapter 转换"
     },
     "rawCasInfo":"原始 CAS 信息"
 }
 ```
 
-## 适配指导
+## Access Token 中控服务
+
+CAS-We-Can 提供了 Access Token 中控服务

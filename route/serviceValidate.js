@@ -32,7 +32,8 @@ module.exports = {
         access_token: sessionRecord.accessToken,
         expires_in: moment(sessionRecord.accessTokenExpiresAt).unix() - moment().unix(),
         raw_cas_info: openIdCasRecord.rawCasInfo,
-        cas_info: await casAdapter.parseCasInfo(openIdCasRecord.rawCasInfo)
+        cas_info: await casAdapter.parseCasInfo(openIdCasRecord.rawCasInfo),
+        refresh_token: sessionRecord.refreshToken
       }
     } else {
       ctx.body = openIdCasRecord.rawCasInfo
