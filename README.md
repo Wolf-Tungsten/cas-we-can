@@ -6,7 +6,7 @@
 
 * 提供 CAS 兼容风格接口，以便于各种「古法」开发的系统“无痛”接入
 
-* 同时为了便于多子系统接入，提供微信公众号 Access Token 管理服务
+* 同时为了便于多子系统接入，提供微信公众号 Access Token 管理服务，接口兼容微信公众号接口风格
 
 * 提供 store-adapter、cas-adapter 以适配目标系统
 
@@ -16,21 +16,31 @@
 
 复制项目目录下 `config.example.yml` 为 `config.yml`，并参考其中注释进行配置。
 
-### step 2.编写 Adapter
+### Step 2.编写 Adapter
 
 **adapter/store-adapter.js**
 
-对持久化功能的适配器，参考注释修改。
+对持久化功能的适配器，请参考注释修改。
 
 项目提供一种支持 Oracle 数据库的 store-adapter。
 
 同时，为了便于理解，提供了使用内存暂存数据的 store-mem-adapter。⚠️ 内存暂存数据会导致应用无法正确
 
-修改完成后使用 `npm run test` 确保所有
+修改完成后使用 `npm run test` 确保所有功能正确实现。
 
+**adapter/cas-adapter.js**
 
+由于不同厂商的 CAS 系统有细微差别，分离 CAS 认证流程关键部分，请参考注释修改。 
 
+随项目提供适配东南大学统一身份认证系统的方案供参考。
 
+### Step 3.启动服务
+
+使用 `npm run start` 命令以生产模式启动，或使用 `npm run dev` 命令进行调试。
+
+### Step 4.考虑性能
+
+公众号业务可能需要频繁使用 Access Token 或进行网页授权，为防止成为性能瓶颈，CAS-We-Can 支持良好的扩展性；你可以同时部署任意数量进程以满足性能需要，然后用任何你喜欢的方式进行负载均衡。
 
 ## cas-we-can 授权登录流程
 
@@ -108,4 +118,34 @@ GET https://example.com/cas-we/serviceValidate?ticket=<st-ticket>&service=<servi
 
 ## Access Token 中控服务
 
-CAS-We-Can 提供了 Access Token 中控服务
+CAS-We-Can 提供了 Access Token 中控服务，请求接口如下：
+
+```
+GET https://example.com/cas-we/access-token?appid=<cas-we-can-app-id>&secret=<cas-we-can-app-secret>
+```
+
+**⚠️ 注意** 此处的 `appid` 和 `appSecret` **不是** 微信公众号的 `appid` 和 `appSecret` ! 在 `config.yml` 中配置可访问业务时指定。
+
+返回格式：
+
+| 参数         | 类型   | 解释                                                         |
+| ------------ | ------ | ------------------------------------------------------------ |
+| access_token | String | 微信公众号 Access Token                                      |
+| expires_in   | Number | access_token 剩余的有效期（秒），注意这个有效期不是固定的 7200，而是随着获取时间动态变化的 |
+
+返回示例：
+
+```json
+{
+    "access_token": "30_imoBk9VGPR6pQYt2CioQhRxw-tzbezJjiy8kNOvZt37-Z-ipeXyvWUKlHBOCOP0uvJ6__LiFbQV4JT4ysiflu4pvYDK7nuB_G6e3qlzXN0EL3yC6Sda_9gUdccRtFbWdq35l4N2mZ-vv7pPmQMMcACADZZ",
+    "expires_in": 4191
+}
+```
+
+### 实践建议一：Access Token 随用随获取
+
+多个业务共用 Access Token 时，为了避免出现部分应用 Access Token 因刷新不及时而过期，建议均采用随用随获取的方案。即当需要使用 Access Token 时从 CAS-We-Can 服务获取。
+
+### 实践建议二：子业务不持有公众号 AppID 和 AppSecret
+
+为了防止开发者错误操作，建议子业务不持有公众号 AppID 和 AppSecret。**CAS-We-Can 已覆盖全部需要使用 AppID 和 AppSecret 的场景。**
