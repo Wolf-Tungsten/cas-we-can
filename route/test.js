@@ -11,18 +11,15 @@ const fs   = require('fs');
 const config = yaml.safeLoad(fs.readFileSync('./config.yml', 'utf8'))
 
 console.log(`
-[!] 测试路由已启用
-
+${chalkColored.bold.yellow('[!] 测试路由已启用')}
     现在你可以通过访问：
-    ${config.publicPath}login?goto=${config.publicPath}test/json
+  -  ${chalkColored.cyan(config.publicPath+'login?goto='+config.publicPath+'test/json')}
     测试 JSON 格式返回（获取 OpenID、网页授权 Access Token、CAS 认证信息）
-
     或访问：
-    ${config.publicPath}login?goto=${config.publicPath}test/cas
+  -  ${chalkColored.cyan(config.publicPath+'login?goto='+config.publicPath+'test/cas')}
     测试 XML 格式返回 （仅 CAS 认证信息）
-
     若系统策略允许解除绑定，您可以访问：
-    ${config.publicPath}logout?goto=${config.publicPath}test
+  -  ${chalkColored.cyan(config.publicPath+'logout?goto='+config.publicPath+'test')}
     测试注销
 `)
 module.exports = {

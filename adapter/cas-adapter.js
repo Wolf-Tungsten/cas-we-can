@@ -13,7 +13,6 @@ module.exports = {
     return `${urlPath}?ticket=${ticket}&${urlQuery ? urlQuery : ''}`
   },
   async pickTicketAndService(query){
-    console.log(query)
     return { 
       ticket: query.ticket,
       service: query.service

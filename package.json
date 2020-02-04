@@ -6,11 +6,13 @@
   },
   "dependencies": {
     "axios": "^0.19.2",
+    "chalk": "^3.0.0",
     "cross-env": "^7.0.0",
     "fast-xml-parser": "^3.16.0",
     "js-yaml": "^3.13.1",
     "koa": "^2.11.0",
     "koa-body": "^4.1.1",
+    "koa-logger": "^3.2.1",
     "koa-router": "^8.0.6",
     "moment": "^2.24.0",
     "nodemon": "^2.0.2",

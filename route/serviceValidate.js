@@ -8,17 +8,14 @@ module.exports = {
   async serviceValidate(ctx, next) {
     const { json } = ctx.request.query
     let { ticket, service } = await casAdapter.pickTicketAndService(ctx.request.query)
-    console.log(ticket, service)
     service = decodeURIComponent(service)
     const ticketRecord = await ctx.store.loadTicket(ticket)
-    console.log(ticketRecord)
     if (!ticketRecord ||
       moment().unix() - moment(ticketRecord.createdTime).unix() > ctx.config.ticketExpiresIn
     ) {
       throw 'ticket 无效或已过期'
     }
     const sessionRecord = await ctx.store.loadSession(ticketRecord.session)
-    console.log(sessionRecord)
     if (!sessionRecord ||
       moment().unix() - moment(sessionRecord.createdTime).unix() > ctx.config.sessionExpiresIn
     ) {
@@ -29,7 +26,6 @@ module.exports = {
       throw 'service 不匹配'
     }
     const openIdCasRecord = await ctx.store.loadOpenIdCasInfo(ctx.config.wechat.appId, sessionRecord.openid)
-    console.log(openIdCasRecord)
     if (json === '1') {
       ctx.body = {
         openid: sessionRecord.openid,

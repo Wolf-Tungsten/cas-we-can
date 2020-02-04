@@ -1,8 +1,11 @@
 const Koa = require('koa')
 const koaBody = require('koa-body')
 const koaRouter = require('koa-router')
-const yaml = require('js-yaml');
-const fs   = require('fs');
+const yaml = require('js-yaml')
+const fs   = require('fs')
+const logger = require('koa-logger')
+const chalk = require('chalk')
+global.chalkColored = new chalk.Instance({level: 2})
 
 const config = yaml.safeLoad(fs.readFileSync('./config.yml', 'utf8'))
 
@@ -24,6 +27,7 @@ if(app.env === 'development'){
     router.get('/test', testRoute)
 }
 
+app.use(logger())
 app.use(koaBody())
 app.use(require('./middleware/config')())
 app.use(require('./middleware/store')())
