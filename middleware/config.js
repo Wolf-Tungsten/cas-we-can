@@ -9,9 +9,11 @@ module.exports = function () {
             config.urlPrefixWhitelist[u] = k
         })
     })
-    console.log(config)
     return async (ctx, next) => {
         ctx.config = config
+        if(ctx.app.env === 'development'){
+            ctx.config.urlPrefixWhitelist[config.publicPath] = 'test'
+        }
         await next()
     }
 }

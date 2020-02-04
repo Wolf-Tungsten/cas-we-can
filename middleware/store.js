@@ -9,7 +9,6 @@ module.exports = function () {
         'saveTicket', 'loadTicket', 'clearTicket',
         'saveOpenIdCasInfo', 'loadOpenIdCasInfo', 'clearOpenIdCasInfo'
     ].forEach(fn => {
-                console.log(fn)
                 ctx.store[fn] = async (...args) => {
                     return await storeAdapter[fn](conn, ...args)
                 }
@@ -17,7 +16,6 @@ module.exports = function () {
         try {
             await next()
         } finally {
-            console.log('关闭数据库连接')
             await conn.close()
         }
     }

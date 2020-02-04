@@ -4,15 +4,16 @@ const uuid = require('uuid/v4')
 
 module.exports = {
   async concateLogoutUrl(urlAfterLogout) {
-    return `https://newids.seu.edu.cn/authserver/logout?goto=${urlAfterLogin}`
+    return `https://newids.seu.edu.cn/authserver/logout?goto=${urlAfterLogout}`
   },
   async concateLoginUrl(urlAfterLogin){
     return `https://newids.seu.edu.cn/authserver/login?goto=${urlAfterLogin}`
   },
   async concateTargetUrl(urlPath, ticket, urlQuery){
-    return `${urlPath}?ticket=${ticket}&${urlQuery}`
+    return `${urlPath}?ticket=${ticket}&${urlQuery ? urlQuery : ''}`
   },
   async pickTicketAndService(query){
+    console.log(query)
     return { 
       ticket: query.ticket,
       service: query.service
@@ -44,7 +45,7 @@ module.exports = {
     // 该函数的返回结构化的 cas 信息
     const data = xmlparser.parse(rawCasInfo)['cas:serviceResponse']['cas:authenticationSuccess']['cas:attributes']
     const cardnum = ''+data['cas:uid']
-    const name = data['cas:name']
+    const name = data['cas:cn']
     return { cardnum, name }
   },
   async generateCasTicket(){

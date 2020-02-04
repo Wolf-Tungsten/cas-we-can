@@ -18,7 +18,7 @@ async function initTables(conn) {
 
   // 创建 OpenId CAS 认证信息 对应表
   try {
-    await conn.execute(`DROP TABLE cas_we_openid_cas_info`)
+    //await conn.execute(`DROP TABLE cas_we_openid_cas_info`)
     await conn.execute(`
     CREATE TABLE cas_we_openid_cas_info
     (
