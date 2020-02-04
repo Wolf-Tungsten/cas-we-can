@@ -3,11 +3,11 @@ const xmlparser = require('fast-xml-parser')
 const uuid = require('uuid/v4')
 
 module.exports = {
-  // 拼接 CAS 认证登录 URL
+  // 拼接 CAS 认证注销 URL
   async concateLogoutUrl(urlAfterLogout) {
     return `https://newids.seu.edu.cn/authserver/logout?goto=${urlAfterLogout}`
   },
-  // 拼接 CAS 认证注销 URL
+  // 拼接 CAS 认证登录 URL
   async concateLoginUrl(urlAfterLogin){
     return `https://newids.seu.edu.cn/authserver/login?goto=${urlAfterLogin}`
   },
