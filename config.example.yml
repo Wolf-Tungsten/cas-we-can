@@ -1,25 +1,37 @@
 # cas-we-can 配置文件示例
 
-# 配置微信服务器相关信息
-wechat: 
-  appId: '微信公众号AppID'
-  appSecret: '微信公众号AppSecret'
+# 部署信息（以/结尾）
+publicPath: 'https://seicwxbz.seu.edu.cn/cas-we/'
 
-# 配置 CAS 服务地址
-cas: 
-  loginUrl: 'https://'
-  logoutUrl: 'https://'
-  serviceValidateUrl: 'https://'
+# 配置微信公众号相关信息
+wechat: 
+  appId: 'wx123fafa58585858'
+  appSecret: 'lalalalalala'
+
+# 允许注销
+enableLogout: true
+
+# 凭据有效期（秒）
+ticketExpiresIn: 60
+sessionExpiresIn: 180
 
 # 下辖服务访问凭据
 accessKey:
-  - appId: 'seicwxbz'
-    appSecret: 'asdfgh'
-    urlPrefixWhiteList: 
-      - 'https://seicwxbz.seu.edu.cn/api'
+  - casWeAppId: 'myAppID-1' # 这是获取 Access Token 用的 AppID
+    casWeAppSecret: 'myAppSecret-1' # 这是获取 Access Token 用的 AppSecret
+    urlPrefixWhitelist: 
+      - 'https://seicwxbz.seu.edu.cn/api' # 按前缀匹配
 
-  - appId: 'seicwx-checkin'
-    appSecret: 'qwerty'
-    urlPrefixWhiteList:
+  - casWeAppId: 'myAppID-2'
+    casWeAppSecret: 'myAppSecret-2'
+    urlPrefixWhitelist:
       - 'https://seicwxbz.seu.edu.cn/checkin'
+
+# 使用 Oracle 时的配置
+oracle:
+  user: 'lalala'
+  password: '喵喵喵'  
+  connectionString: '114.514.114.514:114514/orcl'
+  poolTimeout: 3600
+
 
