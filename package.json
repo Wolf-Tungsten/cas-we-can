@@ -5,6 +5,7 @@
   },
   "dependencies": {
     "axios": "^0.19.2",
+    "fast-xml-parser": "^3.16.0",
     "js-yaml": "^3.13.1",
     "koa": "^2.11.0",
     "koa-body": "^4.1.1",

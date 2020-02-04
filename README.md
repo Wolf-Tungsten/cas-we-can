@@ -52,7 +52,7 @@ GET https://example.com/cas-we/serviceValidate?ticket=<st-ticket>&service=<须�
 ```json
 {
     "success":true,
-    "openId":"用户 OpenId",
+    "openid":"用户 OpenId",
     "casInfo":{
         "结构化的CAS信息":"由 cas-adapter 转换"
     },
