@@ -12,6 +12,29 @@ describe('StoreAdapter 测试', function () {
     it('创建数据连接', async () => {
         conn = await storeAdapter.getConnection(config)
     })
+    let fakeAccessTokens = [
+        {
+            accessToken:'fake_access_token_1',
+            expiresIn:7200,
+            acquiredTime:moment().toDate()
+        },
+        {
+            accessToken:'fake_access_token_2',
+            expiresIn:7200,
+            acquiredTime:moment().toDate()
+        },
+    ]
+    it('saveAccessToken - 测试保存 AccessToken', async () => {
+        for (let f of fakeAccessTokens) {
+            await storeAdapter.saveAccessToken(conn, 'fake_app_id', f.accessToken, f.expiresIn, f.acquiredTime)
+        }
+    })
+    it('loadAccessToken - 测试读取 AccessToken', async () => {
+        const record = await storeAdapter.loadAccessToken(conn, 'fake_app_id' )
+        assert.equal(record.accessToken, fakeAccessTokens[1].accessToken)
+        assert.equal(record.expiresIn, fakeAccessTokens[1].expiresIn)
+        assert.equal(moment(record.acquiredTime).unix(), moment(fakeAccessTokens[1].acquiredTime).unix())
+    })
     let fakeSessions = [{
         session: 'fake_session_1',
         urlPath: 'fake_url_path_1',

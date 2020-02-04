@@ -82,11 +82,32 @@ module.exports = {
   async closeConnection(conn) {
     await conn.close();
   },
-  async saveAccessToken(conn, appId, token, expiresIn) {
-
+  async saveAccessToken(conn, appId, accessToken, expiresIn, acquiredTime) {
+    // 先删除过期 access token
+    await conn.execute(`DELETE FROM cas_we_access_token WHERE appid = :appId`, {appId})
+    // 再插入新的 access token
+    await conn.execute(`
+    INSERT INTO cas_we_access_token
+    (appid, access_token, acquired_time, expires_in)
+    VALUES
+    (:appId, :accessToken, :acquiredTime, :expiresIn)
+    `, {appId, accessToken, acquiredTime, expiresIn})
   },
   async loadAccessToken(conn, appId) {
-    console.log(conn, appId)
+    let record = await conn.execute(`
+    SELECT access_token, acquired_time, expires_in
+    FROM cas_we_access_token
+    WHERE appid = :appId
+    `, { appId })
+    if (record.rows.length > 0) {
+      return {
+        accessToken: record.rows[0][0],
+        acquiredTime: record.rows[0][1],
+        expiresIn: record.rows[0][2]
+      }
+    } else {
+      return null;
+    }
   },
   /**
    * saveSession
