@@ -1,4 +1,8 @@
 {
+  "name": "cas-we-can",
+  "version": "1.0.0",
+  "author": "Wolf-Tungsten",
+  "license": "MIT",
   "scripts": {
     "dev": "cross-env NODE_ENV=development nodemon --tls-min-v1.0 app.js",
     "start": "cross-env NODE_ENV=production nodemon --tls-min-v1.0 app.js",

@@ -3,15 +3,19 @@ const xmlparser = require('fast-xml-parser')
 const uuid = require('uuid/v4')
 
 module.exports = {
+  // 拼接 CAS 认证登录 URL
   async concateLogoutUrl(urlAfterLogout) {
     return `https://newids.seu.edu.cn/authserver/logout?goto=${urlAfterLogout}`
   },
+  // 拼接 CAS 认证注销 URL
   async concateLoginUrl(urlAfterLogin){
     return `https://newids.seu.edu.cn/authserver/login?goto=${urlAfterLogin}`
   },
+  // 拼接待授权业务 URL
   async concateTargetUrl(urlPath, ticket, urlQuery){
     return `${urlPath}?ticket=${ticket}&${urlQuery ? urlQuery : ''}`
   },
+  // 从 CAS 重定向回到 CAS-We-Can 后的参数中获取 ticket 和 service
   async pickTicketAndService(query){
     return { 
       ticket: query.ticket,
@@ -39,14 +43,20 @@ module.exports = {
       return null
     }
   },
+  /**
+   * 解析 CAS 信息
+   * @param {String} rawCasInfo 
+   * 该解析结果会出现在 JSON 结果中
+   */
   async parseCasInfo(rawCasInfo){
-    // 解析 CAS 返回的用户信息
-    // 该函数的返回结构化的 cas 信息
     const data = xmlparser.parse(rawCasInfo)['cas:serviceResponse']['cas:authenticationSuccess']['cas:attributes']
     const cardnum = ''+data['cas:uid']
     const name = data['cas:cn']
     return { cardnum, name }
   },
+  /**
+   * 生成符合目标 CAS 系统格式要求的 ST-Ticket
+   */
   async generateCasTicket(){
     // 生成符合目标 CAS 系统规则的 Ticket
     return `ST-${uuid().split('-').join('')}-cas`
