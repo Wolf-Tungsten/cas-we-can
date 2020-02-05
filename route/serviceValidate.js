@@ -22,7 +22,7 @@ module.exports = {
       throw 'session 无效或已过期'
     }
     // 验证 service URL 匹配（忽略参数）
-    if (ctx.app.env === 'development' && sessionRecord.urlPath !== service) {
+    if (ctx.app.env !== 'development' && sessionRecord.urlPath !== service) {
       throw 'service 不匹配'
     }
     const openIdCasRecord = await ctx.store.loadOpenIdCasInfo(ctx.config.wechat.appId, sessionRecord.openid)
