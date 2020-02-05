@@ -33,7 +33,7 @@ module.exports = {
       }
       const json = format === 'json' ? 1 : 0
       const response = await axios.get(
-        `http://localhost:${port}/serviceValidate?ticket=${ticket}&json=${json}&service=${config.publicPath}test/${format}`
+        `${ctx.config.publicPath}serviceValidate?ticket=${ticket}&json=${json}&service=${config.publicPath}test/${format}`
       )
       ctx.body = response.data
     }
