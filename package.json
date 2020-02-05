@@ -5,8 +5,9 @@
   "license": "MIT",
   "nodeVersion": "12.14.1",
   "scripts": {
-    "dev": "cross-env NODE_ENV=development nodemon --tls-min-v1.0 app.js --port=3000",
-    "start": "cross-env NODE_ENV=production nodemon --tls-min-v1.0 app.js --port=3000",
+    "dev": "cross-env NODE_ENV=development nodemon --tls-min-v1.0 app.js --port=3100",
+    "dev-old": "cross-env NODE_ENV=development nodemon app.js --port=3100",
+    "start": "cross-env NODE_ENV=production nodemon --tls-min-v1.0 app.js --port=3100",
     "test": "mocha -t 10000"
   },
   "dependencies": {

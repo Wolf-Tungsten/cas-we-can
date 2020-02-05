@@ -28,7 +28,7 @@ router.get('/cas-login-callback/:session', require('./route/casCallback').casLog
 router.get('/cas-logout-callback/:session', require('./route/casCallback').casLogoutCallback)
 router.get('/serviceValidate', require('./route/serviceValidate').serviceValidate)
 if(app.env === 'development'){
-    const testRoute = require('./route/test').test
+    const testRoute = require('./route/test').test(program.port)
     router.get('/test/:format', testRoute)
     router.get('/test', testRoute)
 }
