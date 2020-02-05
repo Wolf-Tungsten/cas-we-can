@@ -1,6 +1,6 @@
 const chai = require('chai');
 const assert = chai.assert;
-const storeAdapter = require('../adapter/store-mem-adapter.js')
+const storeAdapter = require('../adapter/store-adapter.js')
 const moment = require('moment')
 const yaml = require('js-yaml');
 const fs = require('fs');
