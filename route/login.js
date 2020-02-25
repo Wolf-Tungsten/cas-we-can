@@ -2,13 +2,14 @@ const uuid = require('uuid/v4')
 const moment = require('moment')
 module.exports = {
     async login(ctx, next) {
-        let gotoUrl = decodeURIComponent(ctx.request.query.goto)
+        let gotoUrl = ctx.request.query.goto
         if(!gotoUrl){
-            gotoUrl = decodeURIComponent(ctx.request.query.service)
+            gotoUrl = ctx.request.query.service
         }
         if(!gotoUrl){
             throw '未指定授权服务'
         }
+        gotoUrl = decodeURIComponent(gotoUrl)
         const [urlPath, urlQuery] = gotoUrl.split('?')
         // 检查应用是否正确授权
         let accessKey
