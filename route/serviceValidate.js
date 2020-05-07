@@ -11,6 +11,9 @@ module.exports = {
     service = decodeURIComponent(service)
     const ticketRecord = await ctx.store.loadTicket(ticket)
     console.log(ticket, ticketRecord, moment().unix() - moment(ticketRecord.createdTime).unix())
+    if(moment().unix() - moment(ticketRecord.createdTime).unix() > ctx.config.ticketExpiresIn){
+      console.log('ticket过期')
+    }
     if (!ticketRecord ||
       moment().unix() - moment(ticketRecord.createdTime).unix() > ctx.config.ticketExpiresIn
     ) {
