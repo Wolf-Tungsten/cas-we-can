@@ -10,7 +10,7 @@ module.exports = {
     let { ticket, service } = await casAdapter.pickTicketAndService(ctx.request.query)
     service = decodeURIComponent(service)
     const ticketRecord = await ctx.store.loadTicket(ticket)
-    console.log(ticket, ticketRecord)
+    console.log(ticket, ticketRecord, moment().unix() - moment(ticketRecord.createdTime).unix())
     if (!ticketRecord ||
       moment().unix() - moment(ticketRecord.createdTime).unix() > ctx.config.ticketExpiresIn
     ) {
