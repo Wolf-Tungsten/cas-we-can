@@ -10,13 +10,10 @@ module.exports = {
     let { ticket, service } = await casAdapter.pickTicketAndService(ctx.request.query)
     service = decodeURIComponent(service)
     const ticketRecord = await ctx.store.loadTicket(ticket)
-    console.log(ticket, ticketRecord, moment().unix() - moment(ticketRecord.createdTime).unix())
-    if(moment().unix() - moment(ticketRecord.createdTime).unix() > ctx.config.ticketExpiresIn){
-      console.log('ticket过期')
-    }
     if (!ticketRecord ||
       moment().unix() - moment(ticketRecord.createdTime).unix() > ctx.config.ticketExpiresIn
     ) {
+      console.log(ticket, service, ticketRecord, moment().unix() - moment(ticketRecord.createdTime).unix())
       throw 'ticket 无效或已过期'
     }
     const sessionRecord = await ctx.store.loadSession(ticketRecord.session)
