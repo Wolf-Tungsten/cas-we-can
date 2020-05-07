@@ -11,7 +11,8 @@ module.exports = {
         let sessionRecord = await ctx.store.loadSession(session)
         if (!sessionRecord) {
             //throw 'Session 无效'
-            ctx.redirect(ctx.config.fallbackUrl)
+            ctx.response.redirect(ctx.config.fallbackUrl)
+            return
         }
         // 向微信服务器获取 openid 和 网页授权 accessToken
         let wechatResponse = await axios.get(`https://api.weixin.qq.com/sns/oauth2/access_token?appid=${ctx.config.wechat.appId}&secret=${ctx.config.wechat.appSecret}&code=${code}&grant_type=authorization_code`)
@@ -47,8 +48,8 @@ module.exports = {
         // 确保 session 有效
         let sessionRecord = await ctx.store.loadSession(session)
         if (!sessionRecord) {
-            //throw 'Session 无效'
-            ctx.redirect(ctx.config.fallbackUrl)
+            ctx.response.redirect(ctx.config.fallbackUrl)
+            return
         }
         // 向微信服务器获取 openid 和 网页授权 accessToken
         let wechatResponse = await axios.get(`https://api.weixin.qq.com/sns/oauth2/access_token?appid=${ctx.config.wechat.appId}&secret=${ctx.config.wechat.appSecret}&code=${code}&grant_type=authorization_code`)
