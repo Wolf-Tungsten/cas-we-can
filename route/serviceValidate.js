@@ -13,9 +13,14 @@ module.exports = {
     if (!ticketRecord ||
       moment().unix() - moment(ticketRecord.createdTime).unix() > ctx.config.ticketExpiresIn
     ) {
-      console.log(ticket, service, ticketRecord, moment().unix() - moment(ticketRecord.createdTime).unix())
-      const sessionRecord = await ctx.store.loadSession(ticketRecord.session)
-      console.log(sessionRecord)
+      if(ticketRecord){
+        console.log(ticket, service, ticketRecord, moment().unix() - moment(ticketRecord.createdTime).unix())
+        const sessionRecord = await ctx.store.loadSession(ticketRecord.session)
+        console.log(sessionRecord)
+      } else {
+        console.log(`ticket:${ticket}没有ticketRecord`)
+        
+      }
       throw 'ticket 无效或已过期'
     }
     const sessionRecord = await ctx.store.loadSession(ticketRecord.session)
