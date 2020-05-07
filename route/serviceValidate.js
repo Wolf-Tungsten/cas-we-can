@@ -19,7 +19,6 @@ module.exports = {
         console.log(sessionRecord)
       } else {
         console.log(`ticket:${ticket}没有ticketRecord`)
-        
       }
       throw 'ticket 无效或已过期'
     }

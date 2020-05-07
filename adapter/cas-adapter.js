@@ -59,6 +59,7 @@ module.exports = {
    */
   async generateCasTicket(){
     // 生成符合目标 CAS 系统规则的 Ticket
-    return `ST-${uuid().split('-').join('')}-cas`
+    //return `ST-${uuid().split('-').join('')}-cas`
+    return `ST-zzj-${uuid().split('-').join('')}-cas`
   },
 }
