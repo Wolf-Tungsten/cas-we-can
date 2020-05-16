@@ -4,7 +4,7 @@ const yaml = require('js-yaml');
 const fs = require('fs');
 const moment = require('moment')
 
-const config = yaml.safeLoad(fs.readFileSync('../config.yml', 'utf8'))
+const config = yaml.safeLoad(fs.readFileSync('./config.yml', 'utf8'))
 
 const job = schedule.scheduleJob('0 0 * * * *',async function(){
   setTimeout(async () => {
