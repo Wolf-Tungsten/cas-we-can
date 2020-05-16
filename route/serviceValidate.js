@@ -6,16 +6,21 @@ const casAdapter = require('../adapter/cas-adapter')
 
 module.exports = {
   async serviceValidate(ctx, next) {
+    let t_startTime = +moment()
     const { json } = ctx.request.query
     let { ticket, service } = await casAdapter.pickTicketAndService(ctx.request.query)
     service = decodeURIComponent(service)
     const ticketRecord = await ctx.store.loadTicket(ticket)
+    console.log(`读取ticketRecord：${moment() - t_startTime}`)
+    t_startTime = +moment()
     if (!ticketRecord ||
       moment().unix() - moment(ticketRecord.createdTime).unix() > ctx.config.ticketExpiresIn
     ) {
       if(ticketRecord){
         console.log(ticket, service, ticketRecord, moment().unix() - moment(ticketRecord.createdTime).unix())
         const sessionRecord = await ctx.store.loadSession(ticketRecord.session)
+        console.log(`读取sessionRecord：${moment() - t_startTime}`)
+        t_startTime = +moment()
         console.log(sessionRecord)
       } else {
         console.log(`ticket:${ticket}没有ticketRecord`)
@@ -33,6 +38,8 @@ module.exports = {
       throw 'service 不匹配'
     }
     const openIdCasRecord = await ctx.store.loadOpenIdCasInfo(ctx.config.wechat.appId, sessionRecord.openid)
+    console.log(`读取openid-cas信息：${moment() - t_startTime}`)
+    t_startTime = +moment()
     if (json === '1') {
       ctx.body = {
         openid: sessionRecord.openid,
@@ -48,7 +55,11 @@ module.exports = {
     // 进行清理
     try {
       await ctx.store.clearTicket(ticket)
+      console.log(`清理ticket：${moment() - t_startTime}`)
+        t_startTime = +moment()
       await ctx.store.clearSession(ticketRecord.session)
+      console.log(`清理session：${moment() - t_startTime}`)
+        t_startTime = +moment()
     } catch (err) { }
   }
 }
