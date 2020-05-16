@@ -11,7 +11,7 @@ module.exports = {
     let { ticket, service } = await casAdapter.pickTicketAndService(ctx.request.query)
     service = decodeURIComponent(service)
     const ticketRecord = await ctx.store.loadTicket(ticket)
-    console.log(`读取ticketRecord：${moment() - t_startTime}`)
+    console.log(`[计时]读取ticketRecord：${moment() - t_startTime}`)
     t_startTime = +moment()
     if (!ticketRecord ||
       moment().unix() - moment(ticketRecord.createdTime).unix() > ctx.config.ticketExpiresIn
@@ -19,7 +19,7 @@ module.exports = {
       if(ticketRecord){
         console.log(ticket, service, ticketRecord, moment().unix() - moment(ticketRecord.createdTime).unix())
         const sessionRecord = await ctx.store.loadSession(ticketRecord.session)
-        console.log(`读取sessionRecord：${moment() - t_startTime}`)
+        console.log(`[计时]读取sessionRecord：${moment() - t_startTime}`)
         t_startTime = +moment()
         console.log(sessionRecord)
       } else {
@@ -38,7 +38,7 @@ module.exports = {
       throw 'service 不匹配'
     }
     const openIdCasRecord = await ctx.store.loadOpenIdCasInfo(ctx.config.wechat.appId, sessionRecord.openid)
-    console.log(`读取openid-cas信息：${moment() - t_startTime}`)
+    console.log(`[计时]读取openid-cas信息：${moment() - t_startTime}`)
     t_startTime = +moment()
     if (json === '1') {
       ctx.body = {
@@ -55,10 +55,10 @@ module.exports = {
     // 进行清理
     try {
       await ctx.store.clearTicket(ticket)
-      console.log(`清理ticket：${moment() - t_startTime}`)
+      console.log(`[计时]清理ticket：${moment() - t_startTime}`)
         t_startTime = +moment()
       await ctx.store.clearSession(ticketRecord.session)
-      console.log(`清理session：${moment() - t_startTime}`)
+      console.log(`[计时]清理session：${moment() - t_startTime}`)
         t_startTime = +moment()
     } catch (err) { }
   }

@@ -15,11 +15,11 @@ module.exports = {
             ctx.response.redirect(ctx.config.fallbackUrl)
             return
         }
-        console.log(`读取sessionRecord：${moment() - t_startTime}`)
+        console.log(`[计时]读取sessionRecord：${moment() - t_startTime}`)
         t_startTime = +moment()
         // 向微信服务器获取 openid 和 网页授权 accessToken
         let wechatResponse = await axios.get(`https://api.weixin.qq.com/sns/oauth2/access_token?appid=${ctx.config.wechat.appId}&secret=${ctx.config.wechat.appSecret}&code=${code}&grant_type=authorization_code`)
-        console.log(`请求微信服务器：${moment() - t_startTime}`)
+        console.log(`[计时]请求微信服务器：${moment() - t_startTime}`)
         t_startTime = +moment()
         wechatResponse = wechatResponse.data
         if (!wechatResponse.openid || !wechatResponse.access_token) {
@@ -30,11 +30,11 @@ module.exports = {
         }
         const accessTokenExpiresAt = moment(moment().unix() + wechatResponse.expires_in).toDate()
         await ctx.store.updateSession(session, wechatResponse.openid, wechatResponse.access_token, accessTokenExpiresAt, wechatResponse.refresh_token)
-        console.log(`请求微信服务器：${moment() - t_startTime}`)
+        console.log(`[计时]更新session信息：${moment() - t_startTime}`)
         t_startTime = moment()
         // 查询是否存在用户完整的绑定信息
         let userBindInfo = await ctx.store.loadOpenIdCasInfo(ctx.config.wechat.appId, wechatResponse.openid)
-        console.log(`读取CAS-INFO：${moment() - t_startTime}`)
+        console.log(`[计时]读取CAS-INFO：${moment() - t_startTime}`)
         t_startTime = moment()
         if(userBindInfo){
             // 已有用户绑定信息
@@ -42,7 +42,7 @@ module.exports = {
             const ticket = await casAdapter.generateCasTicket()
             // 关联 ticket 和 session 关系
             await ctx.store.saveTicket(session, ticket, moment().toDate())
-            console.log(`保存ticket：${moment() - t_startTime}`)
+            console.log(`[计时]保存ticket：${moment() - t_startTime}`)
             t_startTime = moment()
             // 拼装业务授权回调URL
             const targetUrl = await casAdapter.concateTargetUrl(sessionRecord.urlPath, ticket, sessionRecord.urlQuery)
