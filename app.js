@@ -18,6 +18,9 @@ const config = yaml.safeLoad(fs.readFileSync('./config.yml', 'utf8'))
 const app = new Koa();
 const router = new koaRouter();
 
+require('./schedule/clearSession')
+require('./schedule/clearTicket')
+
 router.get('/access-token', require('./route/accessToken').getAccessToken)
 router.get('/login', require('./route/login').login)
 router.get('/logout', require('./route/logout').logout)
