@@ -7,7 +7,7 @@ const casAdapter = require('../adapter/cas-adapter')
 module.exports = {
     async wechatLoginCallback(ctx, next) {
         const { code, state: session } = ctx.request.query
-        let t_startTime = moment().unix()
+        let t_startTime = +moment()
         // 确保 session 有效
         let sessionRecord = await ctx.store.loadSession(session)
         if (!sessionRecord) {
@@ -15,12 +15,12 @@ module.exports = {
             ctx.response.redirect(ctx.config.fallbackUrl)
             return
         }
-        console.log(`读取sessionRecord：${moment().unix() - t_startTime}`)
-        t_startTime = moment().unix()
+        console.log(`读取sessionRecord：${moment() - t_startTime}`)
+        t_startTime = +moment()
         // 向微信服务器获取 openid 和 网页授权 accessToken
         let wechatResponse = await axios.get(`https://api.weixin.qq.com/sns/oauth2/access_token?appid=${ctx.config.wechat.appId}&secret=${ctx.config.wechat.appSecret}&code=${code}&grant_type=authorization_code`)
-        console.log(`请求微信服务器：${moment().unix() - t_startTime}`)
-        t_startTime = moment().unix()
+        console.log(`请求微信服务器：${moment() - t_startTime}`)
+        t_startTime = +moment()
         wechatResponse = wechatResponse.data
         if (!wechatResponse.openid || !wechatResponse.access_token) {
             // 获取失败，发起重试
@@ -30,20 +30,20 @@ module.exports = {
         }
         const accessTokenExpiresAt = moment(moment().unix() + wechatResponse.expires_in).toDate()
         await ctx.store.updateSession(session, wechatResponse.openid, wechatResponse.access_token, accessTokenExpiresAt, wechatResponse.refresh_token)
-        console.log(`请求微信服务器：${moment().unix() - t_startTime}`)
-        t_startTime = moment().unix()
+        console.log(`请求微信服务器：${moment() - t_startTime}`)
+        t_startTime = moment()
         // 查询是否存在用户完整的绑定信息
         let userBindInfo = await ctx.store.loadOpenIdCasInfo(ctx.config.wechat.appId, wechatResponse.openid)
-        console.log(`读取CAS-INFO：${moment().unix() - t_startTime}`)
-        t_startTime = moment().unix()
+        console.log(`读取CAS-INFO：${moment() - t_startTime}`)
+        t_startTime = moment()
         if(userBindInfo){
             // 已有用户绑定信息
             // 生成 ticket
             const ticket = await casAdapter.generateCasTicket()
             // 关联 ticket 和 session 关系
             await ctx.store.saveTicket(session, ticket, moment().toDate())
-            console.log(`保存ticket：${moment().unix() - t_startTime}`)
-            t_startTime = moment().unix()
+            console.log(`保存ticket：${moment() - t_startTime}`)
+            t_startTime = moment()
             // 拼装业务授权回调URL
             const targetUrl = await casAdapter.concateTargetUrl(sessionRecord.urlPath, ticket, sessionRecord.urlQuery)
             ctx.response.redirect(targetUrl)
