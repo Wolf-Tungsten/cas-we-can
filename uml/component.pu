@@ -1,0 +1,32 @@
+@startuml
+node "CAS-We-Can 认证服务器"{
+    package "CAS-We-Can" {
+        () "身份认证"
+        () "AccessToken中控" as accessTokenInterface
+        身份认证 -- [身份认证组件]
+        accessTokenInterface -- [AccessToken中控组件]
+        package "适配器"{
+            [身份认证组件] --> [CAS系统适配器]
+            [身份认证组件] --> [存储适配器]
+            [AccessToken中控组件] --> [存储适配器]
+        }
+    }
+    database "数据库"{
+        [存储适配器] --> [数据库存储]
+    }
+}
+
+
+
+
+cloud "CAS服务器"{
+    [CAS系统适配器] --> [CAS服务]
+}
+
+cloud "微信服务器"{
+    [身份认证组件] --> [微信网页授权服务]
+    [AccessToken中控组件] --> [公众号AccessToken服务]
+}
+
+
+@enduml

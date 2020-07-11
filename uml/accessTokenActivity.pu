@@ -1,0 +1,13 @@
+@startuml
+(*) --> "接入应用请求 Access Token"
+--> "读取数据库，获取保存的Access Token"
+if "Access Token 是否过期" then
+  -->[过期] "向微信请求新 Access Token"
+  --> "保存新 Access Token"
+  --> "向应用返回 Access Token"
+else
+  -->[未过期] "向应用返回 Access Token"
+endif
+  --> (*)
+
+@enduml

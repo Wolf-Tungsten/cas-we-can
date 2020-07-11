@@ -1,0 +1,122 @@
+@startuml
+
+title CAS-We-Can 认证过程时序图
+
+Actor 用户
+participant 微信内置浏览器
+participant "CAS-We-Can 服务器" as CasWeCan
+participant 微信认证服务器
+participant CAS服务器
+== 在微信浏览器内首次访问应用 ==
+
+用户 -> 微信内置浏览器: 请求访问应用
+activate 微信内置浏览器
+微信内置浏览器 -> 接入的应用: GET https://app.example.com/
+activate 接入的应用
+接入的应用 --> 微信内置浏览器: 302 Location: https://cas-we.example.com/cas-we/login?\nservice=https%3A%2F%2Fapp.example.com%2F 
+deactivate 接入的应用
+note right: 应用没有当前用户的身份凭据信息，\n跳转CAS-We-Can服务请求授权
+
+微信内置浏览器 -> CasWeCan: GET https://cas-we.example.com/cas-we/login?\nservice=https%3A%2F%2Fapp.example.com%2F 
+activate CasWeCan
+CasWeCan --> 微信内置浏览器: 302 Location: https://open.weixin.qq.com/connect/oauth2/authorize?appid=:appid\n&redirect_uri=https://cas-we.example.com/cas-we/wechat-login-callback\n&response_type=code&scope=snsapi_base&state=:session#wechat_redirect
+deactivate CasWeCan
+微信内置浏览器 -> 微信认证服务器: GET https://open.weixin.qq.com/connect/oauth2/authorize?appid=:appid\n&redirect_uri=https://cas-we.example.com/cas-we/wechat-login-callback\n&response_type=code&scope=snsapi_base&state=:session#wechat_redirect
+activate 微信认证服务器
+微信认证服务器 --> 微信内置浏览器: 302 Location: https://cas-we.example.com/cas-we/wechat-login-callback?\ncode=:code&state=:session
+deactivate 微信认证服务器
+微信内置浏览器 -> CasWeCan: GET https://cas-we.example.com/cas-we/wechat-login-callback?\ncode=:code&state=:session
+activate CasWeCan
+CasWeCan -> 微信认证服务器: 使用code换取用户OpenID
+activate 微信认证服务器
+微信认证服务器 --> CasWeCan: 返回用户OpenID信息
+deactivate 微信认证服务器
+
+CasWeCan -> CasWeCan: 将 OpenID 保存到 session
+note right: 因为是首次访问应用，\nCAS-We-Can没有当前用户绑定记录，\n所以进入CAS认证流程进行绑定
+CasWeCan --> 微信内置浏览器: 302 Location: https://cas.example.com/authserver/logout?\ngoto=https://cas-we.example.com/cas-we/cas-middle/login/:session
+deactivate CasWeCan
+微信内置浏览器 -> CAS服务器: GET https://cas.example.com/authserver/logout?\ngoto=https://cas-we.example.com/cas-we/cas-middle/login/:session
+note right:首先跳转CAS登出，\n防止CAS SSO特性导致用户身份切换出错
+activate CAS服务器
+CAS服务器 --> 微信内置浏览器: 302 Location: https://cas-we.example.com/cas-we/cas-middle/login/:session
+deactivate CAS服务器
+
+微信内置浏览器 -> CasWeCan: GET https://cas-we.example.com/cas-we/cas-middle/login/:session
+activate CasWeCan
+CasWeCan --> 微信内置浏览器: 302 Location: https://cas.example.com/authserver/login?\ngoto=https://cas-we.example.com/cas-we/cas-login-callback/:session
+deactivate CasWeCan
+
+微信内置浏览器 -> CAS服务器: GET https://cas.example.com/authserver/login?\ngoto=https://cas-we.example.com/cas-we/cas-login-callback/:session
+CAS服务器 --> 微信内置浏览器: CAS认证页面
+deactivate CAS服务器
+微信内置浏览器 -> 用户: 展示认证表单
+activate 用户
+用户 --> 微信内置浏览器: 填写并提交认证表单
+deactivate 用户
+微信内置浏览器 -> CAS服务器: POST https://cas.example.com/authserver/login?\ngoto=https://cas-we.example.com/cas-we/cas-login-callback/:session
+activate CAS服务器
+CAS服务器 --> 微信内置浏览器: 302 Location: https://cas-we.example.com/cas-we/cas-login-callback/:session?ticket=:cas-ticket
+deactivate CAS服务器
+
+微信内置浏览器 -> CasWeCan: GET https://cas-we.example.com/cas-we/cas-login-callback/:session?ticket=:cas-ticket
+activate CasWeCan
+CasWeCan -> CAS服务器: 使用 cas-ticke 进行 serviceValidate，\n获取CAS系统中的用户信息
+activate CAS服务器
+CAS服务器 --> CasWeCan: 200 [XML Content] CAS系统中的用户信息
+deactivate CAS服务器
+CasWeCan -> CasWeCan: 根据 session \n保存 OpenID 和 CAS信息的对应关系
+CasWeCan -> CasWeCan: 生成 ticket
+CasWeCan --> 微信内置浏览器: 302 Location: https://app.example.com/?ticket=:ticket
+deactivate CasWeCan
+
+微信内置浏览器 -> 接入的应用: GET https://app.example.com/?ticket=:ticket
+activate 接入的应用
+接入的应用 -> CasWeCan: GET https://cas-we.example.com/cas-we/serviceValidate?\nservice=https://app.example.com/\n&ticket=:ticket
+activate CasWeCan
+CasWeCan --> 接入的应用: 用户的OpenID、CAS认证信息
+deactivate CasWeCan
+接入的应用 --> 微信内置浏览器: 应用的访问凭据
+deactivate 微信内置浏览器
+deactivate 接入的应用
+== 在微信浏览器再次访问应用（应用访问凭据失效，二次授权）==
+
+用户 -> 微信内置浏览器: 请求访问应用
+activate 微信内置浏览器
+微信内置浏览器 -> 接入的应用: GET https://app.example.com/
+activate 接入的应用
+接入的应用 --> 微信内置浏览器: 302 Location: https://cas-we.example.com/cas-we/login?\nservice=https%3A%2F%2Fapp.example.com%2F 
+deactivate 接入的应用
+note right: 已有身份凭据失效，请求再次验证，\n跳转CAS-We-Can服务请求授权
+
+微信内置浏览器 -> CasWeCan: GET https://cas-we.example.com/cas-we/login?\nservice=https%3A%2F%2Fapp.example.com%2F 
+activate CasWeCan
+CasWeCan --> 微信内置浏览器: 302 Location: https://open.weixin.qq.com/connect/oauth2/authorize?appid=:appid\n&redirect_uri=https://cas-we.example.com/cas-we/wechat-login-callback\n&response_type=code&scope=snsapi_base&state=:session#wechat_redirect
+deactivate CasWeCan
+微信内置浏览器 -> 微信认证服务器: GET https://open.weixin.qq.com/connect/oauth2/authorize?appid=:appid\n&redirect_uri=https://cas-we.example.com/cas-we/wechat-login-callback\n&response_type=code&scope=snsapi_base&state=:session#wechat_redirect
+activate 微信认证服务器
+微信认证服务器 --> 微信内置浏览器: 302 Location: https://cas-we.example.com/cas-we/wechat-login-callback?\ncode=:code&state=:session
+deactivate 微信认证服务器
+微信内置浏览器 -> CasWeCan: GET https://cas-we.example.com/cas-we/wechat-login-callback?\ncode=:code&state=:session
+activate CasWeCan
+CasWeCan -> 微信认证服务器: 使用code换取用户OpenID
+activate 微信认证服务器
+微信认证服务器 --> CasWeCan: 返回用户OpenID信息
+deactivate 微信认证服务器
+
+CasWeCan -> CasWeCan: 将 OpenID 保存到 session
+note right: 再次访问应用，\nCAS-We-Can中已有绑定记录，\n无需再次进入CAS认证流程
+CasWeCan -> CasWeCan: 生成 ticket
+CasWeCan --> 微信内置浏览器: 302 Location: https://app.example.com/?ticket=:ticket
+deactivate CasWeCan
+
+微信内置浏览器 -> 接入的应用: GET https://app.example.com/?ticket=:ticket
+activate 接入的应用
+接入的应用 -> CasWeCan: GET https://cas-we.example.com/cas-we/serviceValidate?\nservice=https://app.example.com/\n&ticket=:ticket
+activate CasWeCan
+CasWeCan --> 接入的应用: 用户的OpenID、CAS认证信息
+deactivate CasWeCan
+接入的应用 --> 微信内置浏览器: 应用的访问凭据
+deactivate 微信内置浏览器
+deactivate 接入的应用
+@enduml
