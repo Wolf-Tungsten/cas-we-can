@@ -28,7 +28,7 @@ module.exports = {
                 `https://open.weixin.qq.com/connect/oauth2/authorize?appid=${ctx.config.wechat.appId}&redirect_uri=${ctx.config.publicPath}wechat-callback&response_type=code&scope=snsapi_base&state=${session}#wechat_redirect`
             ctx.response.redirect(wechatOAuthUrl)
         }
-        const accessTokenExpiresAt = moment(moment().unix() + wechatResponse.expires_in).toDate()
+        const accessTokenExpiresAt = moment(+moment() + wechatResponse.expires_in).toDate()
         await ctx.store.updateSession(session, wechatResponse.openid, wechatResponse.access_token, accessTokenExpiresAt, wechatResponse.refresh_token)
         console.log(`[计时]更新session信息：${moment() - t_startTime}`)
         t_startTime = moment()
@@ -36,7 +36,7 @@ module.exports = {
         let userBindInfo = await ctx.store.loadOpenIdCasInfo(ctx.config.wechat.appId, wechatResponse.openid)
         console.log(`[计时]读取CAS-INFO：${moment() - t_startTime}`)
         t_startTime = moment()
-        if(userBindInfo){
+        if (userBindInfo) {
             // 已有用户绑定信息
             // 生成 ticket
             const ticket = await casAdapter.generateCasTicket()
@@ -71,11 +71,11 @@ module.exports = {
                 `https://open.weixin.qq.com/connect/oauth2/authorize?appid=${ctx.config.wechat.appId}&redirect_uri=${ctx.config.publicPath}wechat-logout-callback&response_type=code&scope=snsapi_base&state=${session}#wechat_redirect`
             ctx.response.redirect(wechatOAuthUrl)
         }
-        const accessTokenExpiresAt = moment(moment().unix() + wechatResponse.expires_in).toDate()
+        const accessTokenExpiresAt = moment(+moment() + wechatResponse.expires_in).toDate()
         await ctx.store.updateSession(session, wechatResponse.openid, wechatResponse.access_token, accessTokenExpiresAt, wechatResponse.refresh_token)
 
         const casCallbackUrl = `${ctx.config.publicPath}cas-middle/logout/${session}`
         ctx.response.redirect(await casAdapter.concateLogoutUrl(casCallbackUrl))
-        
+
     }
 }
