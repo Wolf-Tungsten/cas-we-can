@@ -75,7 +75,8 @@ module.exports = {
     // 首次建立连接时生成连接池
     if (!connectionPool) {
       connectionPool = await oracledb.createPool({
-        ...config.oracle
+        ...config.oracle,
+        _enableStats  : true
       })
       const conn = await connectionPool.getConnection()
       try {
@@ -83,6 +84,7 @@ module.exports = {
       } finally {
         await conn.close()
       }
+      setInterval(()=>{connectionPool._logStats()}, 3000)
     }
     return await connectionPool.getConnection()
   },

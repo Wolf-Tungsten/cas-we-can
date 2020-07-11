@@ -2,7 +2,13 @@ const storeAdapter = require('../adapter/store-adapter')
 
 module.exports = function () {
   return async (ctx, next) => {
-    let conn = await storeAdapter.getConnection(ctx.config)
+    let conn
+    try {
+      conn = await storeAdapter.getConnection(ctx.config)
+    } catch (err) {
+      console.log('数据库连接出错，进程结束等待自动重启')
+      process.exit(-1)
+    }
     ctx.store = {};
     ['saveAccessToken', 'loadAccessToken',
       'saveSession', 'loadSession', 'updateSession', 'clearSession',
