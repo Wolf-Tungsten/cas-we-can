@@ -50,7 +50,7 @@ module.exports = {
    */
   async parseCasInfo(rawCasInfo){
     const data = xmlparser.parse(rawCasInfo)['cas:serviceResponse']['cas:authenticationSuccess']['cas:attributes']
-    const cardnum = ''+data['cas:uid']
+    const cardnum = data['cas:containerId'].split(',')[0].split('=')[1]
     const name = data['cas:cn']
     return { cardnum, name }
   },
