@@ -32,8 +32,12 @@ module.exports = {
         return
       }
       const json = format === 'json' ? 1 : 0
+      let validatePath = ctx.config.publicPath
+      if (ctx.app.env === 'development') {
+        validatePath = 'http://127.0.0.1:3100/'
+      }
       const response = await axios.get(
-        `${ctx.config.publicPath}serviceValidate?ticket=${ticket}&json=${json}&service=${config.publicPath}test/${format}`
+        `${validatePath}serviceValidate?ticket=${ticket}&json=${json}&service=${config.publicPath}test/${format}`
       )
       ctx.body = response.data
     }

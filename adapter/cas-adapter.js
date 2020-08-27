@@ -13,7 +13,7 @@ module.exports = {
   },
   // 拼接待授权业务 URL
   async concateTargetUrl(urlPath, ticket, urlQuery){
-    return `${urlPath}?ticket=${ticket}&${urlQuery ? urlQuery : ''}`
+    return `${urlPath}?ticket=${ticket}${urlQuery ? '&' + urlQuery : ''}`
   },
   // 从 CAS 重定向回到 CAS-We-Can 后的参数中获取 ticket 和 service
   async pickTicketAndService(query){

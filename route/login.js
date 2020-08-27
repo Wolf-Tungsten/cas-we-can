@@ -29,10 +29,16 @@ module.exports = {
         const session = uuid()
         // 保存 session
         await ctx.store.saveSession(session, urlPath, urlQuery, moment().toDate())
-        // 拼接微信回调URL
-        let wechatOAuthUrl = 
-        `https://open.weixin.qq.com/connect/oauth2/authorize?appid=${ctx.config.wechat.appId}&redirect_uri=${ctx.config.publicPath}wechat-login-callback&response_type=code&scope=snsapi_base&state=${session}#wechat_redirect`
-        // 然后我们 wechatCallback 见👋
-        ctx.response.redirect(wechatOAuthUrl)
+        let nextStepUrl
+        if(ctx.isWechat){
+            // 拼接微信回调URL
+            nextStepUrl = `https://open.weixin.qq.com/connect/oauth2/authorize?appid=${ctx.config.wechat.appId}&redirect_uri=${ctx.config.publicPath}wechat-login-callback&response_type=code&scope=snsapi_base&state=${session}#wechat_redirect`
+            // 然后我们 wechatCallback 见👋
+        } else {
+            // 否则通过 shortPath 短路认证
+            // 这时不经过 cas-middle，保持 cas 的完整性
+            nextStepUrl = `${ctx.config.publicPath}cas-middle/login/${session}`
+        }
+        ctx.response.redirect(nextStepUrl)
     }
 }

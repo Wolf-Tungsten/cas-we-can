@@ -46,6 +46,7 @@ async function initTables(conn) {
     access_token_expires_at TIMESTAMP,
     refresh_token VARCHAR2(256),
     openid VARCHAR2(256),
+    short_path_cas_info VARCHAR2(4000),
     CONSTRAINT cas_we_session_pk PRIMARY KEY ( session_key ) ENABLE 
   )`)
   } catch (e) { }
@@ -76,7 +77,7 @@ module.exports = {
     if (!connectionPool) {
       connectionPool = await oracledb.createPool({
         ...config.oracle,
-        _enableStats  : true
+        _enableStats  : false
       })
       const conn = await connectionPool.getConnection()
       try {
@@ -84,7 +85,7 @@ module.exports = {
       } finally {
         await conn.close()
       }
-      setInterval(()=>{connectionPool._logStats()}, 3000)
+      // setInterval(()=>{connectionPool._logStats()}, 3000)
     }
     return await connectionPool.getConnection()
   },
@@ -171,13 +172,25 @@ module.exports = {
    * 以 Session 标识符检索会话信息，并向其中增添网页授权信息
    * 注意此处的 Access Token 为网页授权 Access Token，与接口 Access Token 不同
    */
-  async updateSession(conn, session, openid, accessToken, accessTokenExpiresAt, refreshToken) {
+  async updateSession(conn, session, openid, accessToken, accessTokenExpiresAt, refreshToken, shortPathCasInfo='') {
     // 更新 session 信息
     await conn.execute(`
     UPDATE cas_we_session
-    SET access_token = :accessToken, access_token_expires_at =:accessTokenExpiresAt, openid = :openid, refresh_token = :refreshToken
+    SET access_token = :accessToken, 
+    access_token_expires_at =:accessTokenExpiresAt, 
+    openid = :openid, 
+    refresh_token = :refreshToken,
+    short_path_cas_info =:shortPathCasInfo
     WHERE session_key = :sessionKey
-    `, { sessionKey: session, accessToken, accessTokenExpiresAt, openid, refreshToken })
+    `, { sessionKey: session, accessToken, accessTokenExpiresAt, openid, refreshToken, shortPathCasInfo })
+  },
+  async updateSessionShortPath(conn, session, shortPathCasInfo){
+        // 更新 session 信息
+        await conn.execute(`
+        UPDATE cas_we_session
+        SET short_path_cas_info =:shortPathCasInfo
+        WHERE session_key = :sessionKey
+        `, { sessionKey: session, shortPathCasInfo })
   },
   /**
    * 获取会话信息
@@ -190,7 +203,8 @@ module.exports = {
     // 通过 session 获取对应信息并删除 session 记录
     let record = await conn.execute(`
     SELECT session_key, url_path, url_query, created_time, 
-    access_token, access_token_expires_at, openid, refresh_token
+    access_token, access_token_expires_at, openid, refresh_token,
+    short_path_cas_info
     FROM cas_we_session
     WHERE session_key = :sessionKey
     `, { sessionKey: session })
@@ -203,7 +217,8 @@ module.exports = {
         accessToken: record.rows[0][4],
         accessTokenExpiresAt: record.rows[0][5],
         openid: record.rows[0][6],
-        refreshToken: record.rows[0][7]
+        refreshToken: record.rows[0][7],
+        shortPathCasInfo: record.rows[0][8]
       }
     } else {
       return null;

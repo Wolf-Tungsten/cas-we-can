@@ -30,8 +30,14 @@ module.exports = {
             const casCallbackUrl = `${ctx.config.publicPath}cas-login-callback/${session}`
             ctx.response.redirect(await casAdapter.concateLoginUrl(casCallbackUrl))
         }
-        // 将 CAS 信息和 OpenId 关联并存储
-        await ctx.store.saveOpenIdCasInfo(ctx.config.wechat.appId, sessionRecord.openid, rawCasInfo)
+        if(ctx.inWechat){
+            // 如果在微信环境下
+            // 将 CAS 信息和 OpenId 关联并存储
+            await ctx.store.saveOpenIdCasInfo(ctx.config.wechat.appId, sessionRecord.openid, rawCasInfo)
+        } else {
+            // 不在微信环境下，直接把cas-info保存在session里
+            await ctx.store.updateSessionShortPath(session, rawCasInfo)
+        }
         // 生成 ticket
         const ticket = await casAdapter.generateCasTicket()
         // 关联 ticket 和 session 关系
@@ -48,7 +54,10 @@ module.exports = {
             throw 'Session 无效'
         }
         // 跳转目标地址，注销完成
-        await ctx.store.clearOpenIdCasInfo(ctx.config.wechat.appId, sessionRecord.openid)
+        if(ctx.inWechat){
+            await ctx.store.clearOpenIdCasInfo(ctx.config.wechat.appId, sessionRecord.openid)
+        }
+        await ctx.store.clearSession(session)
         const targetUrl = sessionRecord.urlPath + (sessionRecord.urlQuery ? '?' + sessionRecord.urlQuery : '')
         ctx.response.redirect(targetUrl)
     }

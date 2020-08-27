@@ -41,6 +41,7 @@ app.use(koaBody())
 app.use(require('./middleware/config')())
 app.use(require('./middleware/store')())
 app.use(require('./middleware/errorWrapper')())
+app.use(require('./middleware/platform')())
 app.use(router.routes())
 app.use(router.allowedMethods())
 
