@@ -1,5 +1,6 @@
 const uuid = require('uuid/v4')
 const moment = require('moment')
+const casAdapter = require('../adapter/cas-adapter')
 module.exports = {
     async login(ctx, next) {
         let gotoUrl = ctx.request.query.goto
@@ -37,7 +38,7 @@ module.exports = {
         } else {
             // 否则通过 shortPath 短路认证
             // 这时不经过 cas-middle，保持 cas 的完整性
-            nextStepUrl = `${ctx.config.publicPath}cas-middle/login/${session}`
+            nextStepUrl = await casAdapter.concateLogoutUrl(`${ctx.config.publicPath}cas-middle/login/${session}`)
         }
         ctx.response.redirect(nextStepUrl)
     }
