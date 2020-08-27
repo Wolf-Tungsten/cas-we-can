@@ -4,7 +4,7 @@ module.exports = function () {
     try {
       await next()
     } catch (err) {
-      console.log(err)
+      console.error(err)
       ctx.status = err.code ? err.code : 400
       ctx.body = {
         success: false,

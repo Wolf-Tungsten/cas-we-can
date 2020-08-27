@@ -30,7 +30,7 @@ module.exports = {
         // 保存 session
         await ctx.store.saveSession(session, urlPath, urlQuery, moment().toDate())
         let nextStepUrl
-        if(ctx.isWechat){
+        if(ctx.inWechat){
             // 拼接微信回调URL
             nextStepUrl = `https://open.weixin.qq.com/connect/oauth2/authorize?appid=${ctx.config.wechat.appId}&redirect_uri=${ctx.config.publicPath}wechat-login-callback&response_type=code&scope=snsapi_base&state=${session}#wechat_redirect`
             // 然后我们 wechatCallback 见👋

@@ -37,7 +37,18 @@ module.exports = {
     if (ctx.app.env !== 'development' && sessionRecord.urlPath !== service) {
       throw 'service 不匹配'
     }
-    if (ctx.inWechat) {
+    if(sessionRecord.shortPathCasInfo){
+      // 如果 session 里就有
+      if (json === '1') {
+        ctx.body = {
+          in_wechat: false,
+          raw_cas_info: sessionRecord.shortPathCasInfo,
+          cas_info: await casAdapter.parseCasInfo(sessionRecord.shortPathCasInfo)
+        }
+      } else {
+        ctx.body = sessionRecord.shortPathCasInfo
+      }
+    } else {
       const openIdCasRecord = await ctx.store.loadOpenIdCasInfo(ctx.config.wechat.appId, sessionRecord.openid)
       console.log(`[计时]读取openid-cas信息：${moment() - t_startTime}`)
       t_startTime = +moment()
@@ -53,16 +64,6 @@ module.exports = {
         }
       } else {
         ctx.body = openIdCasRecord.rawCasInfo
-      }
-    } else {
-      if (json === '1') {
-        ctx.body = {
-          in_wechat: false,
-          raw_cas_info: sessionRecord.shortPathCasInfo,
-          cas_info: await casAdapter.parseCasInfo(sessionRecord.shortPathCasInfo)
-        }
-      } else {
-        ctx.body = sessionRecord.shortPathCasInfo
       }
     }
     // 进行清理
