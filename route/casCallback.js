@@ -17,6 +17,7 @@ module.exports = {
     },
     async casLoginCallback(ctx, next) {
         const { session } = ctx.params
+        console.log('session在这儿',session)
         // 确保 session 有效
         let sessionRecord = await ctx.store.loadSession(session)
         if(!sessionRecord){
