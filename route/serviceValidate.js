@@ -41,6 +41,7 @@ module.exports = {
       // 如果 session 里就有
       if (json === '1') {
         ctx.body = {
+          success:true,
           in_wechat: false,
           raw_cas_info: sessionRecord.shortPathCasInfo,
           cas_info: await casAdapter.parseCasInfo(sessionRecord.shortPathCasInfo)
@@ -54,6 +55,7 @@ module.exports = {
       t_startTime = +moment()
       if (json === '1') {
         ctx.body = {
+          success:true,
           in_wechat: true,
           openid: sessionRecord.openid,
           access_token: sessionRecord.accessToken,
