@@ -23,6 +23,7 @@ module.exports = {
         t_startTime = +moment()
         wechatResponse = wechatResponse.data
         if (!wechatResponse.openid || !wechatResponse.access_token) {
+          console.log('到的了这儿嘛')
             // 获取失败，发起重试
             const wechatOAuthUrl =
                 `https://open.weixin.qq.com/connect/oauth2/authorize?appid=${ctx.config.wechat.appId}&redirect_uri=${ctx.config.publicPath}wechat-callback&response_type=code&scope=snsapi_base&state=${session}#wechat_redirect`
