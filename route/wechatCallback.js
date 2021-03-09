@@ -23,9 +23,6 @@ module.exports = {
       wechatResponse = await axios.get(`https://api.weixin.qq.com/sns/oauth2/access_token?appid=${ctx.config.wechat.appId}&secret=${ctx.config.wechat.appSecret}&code=${code}&grant_type=authorization_code`)
     } catch (err) {
       console.log(err)
-      const wechatOAuthUrl =
-        `https://open.weixin.qq.com/connect/oauth2/authorize?appid=${ctx.config.wechat.appId}&redirect_uri=${ctx.config.publicPath}wechat-callback&response_type=code&scope=snsapi_base&state=${session}#wechat_redirect`
-      ctx.response.redirect(wechatOAuthUrl)
     }
     // console.log(`[计时]请求微信服务器：${moment() - t_startTime}`)
     t_startTime = +moment()
